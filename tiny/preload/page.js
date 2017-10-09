@@ -1778,6 +1778,9 @@ var messageHandler = {
         });
     },
     refresh: function refresh() {
+        nodeIdForDom.clear();
+        appxForNodeId.clear();
+        rootNodeIDMap.clear();
         sendMessage({ method: 'switchTarget' });
     },
     setDocumentNodeIdOnce: function setDocumentNodeIdOnce(_ref5) {

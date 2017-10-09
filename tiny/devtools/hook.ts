@@ -430,9 +430,6 @@ const messageHandler = {
       }
     }
 
-    console.log(realDom);
-    console.log(reactComponents);
-
     sendMessage({
       method: 'setChildNodeIdOnce',
       payload: {
