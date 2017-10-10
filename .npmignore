@@ -17,3 +17,5 @@ tiny/devtools/
 .gitignore
 .style.yapf
 webpack.config.js
+
+release/fd
