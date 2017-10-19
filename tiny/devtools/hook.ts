@@ -138,7 +138,9 @@ function setupBackend(hook) {
       },
     });
   }
-}
+
+  // to make sure page is loaded.
+  ipc.sendToHost('main', 'load-end');
 }
 
 function findOwner(element) {
@@ -253,22 +255,6 @@ const sendMessage = ({ method, payload, error }) => {
   ipc.sendToHost('devtools', {
     method, payload, error,
   })
-}
-
-function fetchRemoteUrl(callback) {
-  const port = window.__chromePort__;
-  const request = new Request(`http://127.0.0.1:${port}/json/list`);
-  const path = window.$page.getPagePath();
-  fetch(request)
-    .then(res => res.json()
-      .then(body => {
-        const remoteInfo = body.find(item => item.url.indexOf(path) > -1);
-        callback({ path, ws: remoteInfo.webSocketDebuggerUrl });
-      })
-      .catch(e => {
-        console.error(e);
-        callback({});
-      })
 }
 
 function mappingDomToNodeId(root, dom) {
@@ -386,11 +372,12 @@ const messageHandler = {
     checkReactReady((ready) => {
       if (ready) {
         initReady = true;
-        fetchRemoteUrl((payload) => {
-          sendMessage({
-            method: 'initOnce',
-            payload,
-          });
+        sendMessage({
+          method: 'initOnce',
+          payload: {
+            filePath: window.$page.getPagePath(),
+            path: window.location.href,
+          },
         })
       } else {
         sendMessage({
@@ -441,6 +428,7 @@ const messageHandler = {
 
 // handle all messages from devtools
 ipc.on('devtools', (event, args) => {
+  console.log(args);
   const { method, payload } = args;
   if (!initReady)
     if (['refresh', 'initOnce'].indexOf(method) === -1)

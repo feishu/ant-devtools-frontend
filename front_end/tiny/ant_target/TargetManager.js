@@ -86,32 +86,12 @@ Ant.TargetManager = class extends Common.Object {
     const cssModel = new SDK.CSSModel(target, tinyModel);
     this._cssModel.set(target, cssModel);
 
-    await this.enableEmulation(target);
-
     this._targets.set(path, { target, model: tinyModel, cssModel });
     this.setCurrent(path);
 
     Ant.switchTargetMutex = false;
 
     return { target, model: tinyModel };
-  }
-
-  async enableEmulation(target) {
-    const { width, height } = await Ant.makePromiseHostOnce('getWebviewWidthHeight');
-
-    this._touchModel.targetAdded(target);
-    this._touchModel.setTouchEnabled(true, true);
-
-    const emulationAgent = target.emulationAgent();
-
-    // so sad, we have to try again to override.
-    emulationAgent.invoke_setDeviceMetricsOverride({
-      width, height: height + 1, deviceScaleFactor: 0, mobile: true, fitWindow: false,
-    }, () => {
-      emulationAgent.invoke_setDeviceMetricsOverride({
-        width, height: height, deviceScaleFactor: 0, mobile: true, fitWindow: false,
-      });
-    });
   }
 
   setCurrent(path) {
@@ -155,8 +135,9 @@ Ant.TargetManager = class extends Common.Object {
     } catch (e) {}
 
     try {
-      const { path, ws } = await Ant.makeProxyPromiseOnce('initOnce');
-      const ret = await Ant.targetManager.addNewTarget(path, ws);
+      const { path, filePath } = await Ant.makeProxyPromiseOnce('initOnce');
+      const ws = `ws://127.0.0.1:9060?path=${encodeURIComponent(path)}`;
+      const ret = await Ant.targetManager.addNewTarget(filePath, ws);
       if (ret)
         this.dispatchEventToListeners(Ant.TargetManager.Events.switchTarget);
     } catch (e) {}

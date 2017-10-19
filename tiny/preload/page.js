@@ -1537,6 +1537,8 @@ function setupBackend(hook) {
             }
         });
     }
+    // to make sure page is loaded.
+    _electron.ipcRenderer.sendToHost('main', 'load-end');
 }
 function findOwner(element) {
     if (element.props['$tag']) {
@@ -1633,22 +1635,6 @@ var sendMessage = function sendMessage(_ref4) {
         method: method, payload: payload, error: error
     });
 };
-function fetchRemoteUrl(callback) {
-    var port = window.__chromePort__;
-    var request = new Request('http://127.0.0.1:' + port + '/json/list');
-    var path = window.$page.getPagePath();
-    fetch(request).then(function (res) {
-        return res.json().then(function (body) {
-            var remoteInfo = body.find(function (item) {
-                return item.url.indexOf(path) > -1;
-            });
-            callback({ path: path, ws: remoteInfo.webSocketDebuggerUrl });
-        }).catch(function (e) {
-            console.error(e);
-            callback({});
-        });
-    });
-}
 function mappingDomToNodeId(root, dom) {
     nodeIdForDom.set(root.nodeId, dom);
     if (root.children && root.children.length > 0) {
@@ -1764,11 +1750,12 @@ var messageHandler = {
         checkReactReady(function (ready) {
             if (ready) {
                 initReady = true;
-                fetchRemoteUrl(function (payload) {
-                    sendMessage({
-                        method: 'initOnce',
-                        payload: payload
-                    });
+                sendMessage({
+                    method: 'initOnce',
+                    payload: {
+                        filePath: window.$page.getPagePath(),
+                        path: window.location.href
+                    }
                 });
             } else {
                 sendMessage({
@@ -1828,6 +1815,7 @@ var messageHandler = {
 };
 // handle all messages from devtools
 _electron.ipcRenderer.on('devtools', function (event, args) {
+    console.log(args);
     var method = args.method,
         payload = args.payload;
 
