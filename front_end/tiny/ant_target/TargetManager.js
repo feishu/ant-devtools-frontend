@@ -136,7 +136,7 @@ Ant.TargetManager = class extends Common.Object {
 
     try {
       const { path, filePath } = await Ant.makeProxyPromiseOnce('initOnce');
-      const ws = `ws://127.0.0.1:9060?path=${encodeURIComponent(path)}`;
+      const ws = `ws://127.0.0.1:${window.__WS_PORT__}?path=${encodeURIComponent(path)}`;
       const ret = await Ant.targetManager.addNewTarget(filePath, ws);
       if (ret)
         this.dispatchEventToListeners(Ant.TargetManager.Events.switchTarget);
