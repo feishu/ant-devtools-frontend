@@ -3,7 +3,7 @@ Ant.switchTargetMutex = false;
 Ant.makeProxyPromiseOnce = (method, payload, callback) =>
   new Promise((resolve, reject) => {
     window.listenToHostOnce(`render-${method}`, (event, args) => {
-      const { payload, error } = args;
+      const { payload, error } = args;      
       if (error) return reject(error);
       const timeout = setTimeout(function() {
         return reject('timeout');
@@ -132,7 +132,9 @@ Ant.TargetManager = class extends Common.Object {
   async switchTarget() {
     try {
       Elements.inspectElementModeController.stopInspection();
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
 
     try {
       const { path, filePath } = await Ant.makeProxyPromiseOnce('initOnce');
@@ -140,7 +142,9 @@ Ant.TargetManager = class extends Common.Object {
       const ret = await Ant.targetManager.addNewTarget(filePath, ws);
       if (ret)
         this.dispatchEventToListeners(Ant.TargetManager.Events.switchTarget);
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   addModel(target, modelClass, model) {
