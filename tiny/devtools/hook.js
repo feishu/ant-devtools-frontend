@@ -122,7 +122,6 @@ function findOwner(fiber) {
 function handleTinyElemets(dom, getReactElementFromNative) {
   try {
     const fiber = getReactElementFromNative(dom);
-    console.log(fiber);
     if (
       fiber &&
       fiber.memoizedProps &&
@@ -143,8 +142,6 @@ function handleStringChildren(children) {
 
 function getTinyData(fiber) {
   const name = fiber.memoizedProps['$tag'];
-
-  console.log(fiber);
 
   const props = getProps(fiber);
   if (!props) return null;
@@ -258,7 +255,12 @@ function mappingDomToNodeIdChildren(parent, children, getReactElementFromNative,
         const speHandled = elementSpecailHandler(fiber);
         if (nodeType !== 'picker-view-column' && nodeType !== 'picker-view')
           appxForNodeId.set(fiber, next.nodeId);
-        reactComponents[reactComponents.length - 1] = getTinyData(speHandled);
+        const data = getTinyData(speHandled);
+        const dom = parent.children[index];
+        if (dom.id) {
+          data.props.id = dom.id;
+        }
+        reactComponents[reactComponents.length - 1] = data;
       } catch (e) { console.error(e); }
     });
   }
@@ -394,9 +396,6 @@ const messageHandler = {
 // handle all messages from devtools
 ipc.on('devtools', (event, args) => {
   const { method, payload } = args;
-
-  console.log(method, payload);
-
   if (!initReady)
     if (['refresh', 'initOnce'].indexOf(method) === -1)
       return sendMessage({ error: 'react is not ready' });
