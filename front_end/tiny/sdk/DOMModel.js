@@ -1045,6 +1045,9 @@ SDK.DOMModel = class extends SDK.SDKModel {
 
     this._agent = target.domAgent();
 
+    target.registerOverlayDispatcher(new SDK.DOMDispatcher(this));
+    this._overlayAgent = target.overlayAgent();
+
     /** @type {!Object.<number, !SDK.DOMNode>} */
     this._idToDOMNode = {};
     /** @type {?SDK.DOMDocument} */
@@ -1055,9 +1058,11 @@ SDK.DOMModel = class extends SDK.SDKModel {
 
     this._inspectModeEnabled = false;
 
-    this._defaultHighlighter = new SDK.DefaultDOMNodeHighlighter(this._agent);
+    this._defaultHighlighter = new SDK.DefaultDOMNodeHighlighter(this._overlayAgent);
     this._highlighter = this._defaultHighlighter;
 
+    this._overlayAgent.enable();
+    this._overlayAgent.setShowViewportSizeOnResize(true);
     this._agent.enable();
   }
 
@@ -2092,6 +2097,7 @@ SDK.DOMDispatcher = class {
    * @param {!Protocol.DOM.NodeId} nodeId
    */
   nodeHighlightRequested(nodeId) {
+    console.log(11111111111);
     this._domModel.nodeHighlightRequested(nodeId);
   }
 };

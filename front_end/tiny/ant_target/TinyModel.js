@@ -14,7 +14,11 @@ Ant.TinyModel = class extends SDK.DOMModel {
   }
 
   static fromTarget(target) {
-    return Ant.targetManager.getTinyModel(target);
+    let domModel = Ant.targetManager.getTinyModel(target);
+    if (!domModel) {
+      domModel = Ant.targetManager.getCurrentModel();
+    }
+    return domModel;
   }
 
   cssModel() {
@@ -65,7 +69,7 @@ Ant.TinyModel = class extends SDK.DOMModel {
       this._scheduleMutationEvent(node);
     }
   }
-  
+
   /**
    * @param {!Protocol.DOM.NodeId} nodeId
    * @param {number} newValue
@@ -123,7 +127,7 @@ Ant.TinyModel = class extends SDK.DOMModel {
     const treeOutlines = Ant.ElementsTreeOutline.forDOMModel(this);
     treeOutlines.selectDOMNode(node, true);
 
-    if (Elements.inspectElementModeController)      
+    if (Elements.inspectElementModeController)
       Elements.inspectElementModeController.stopInspection();
   }
 
@@ -1203,6 +1207,33 @@ Ant.combinedProps = (node, props, model) => {
     model.dispatchEventToListeners(SDK.DOMModel.Events.AttrModified, {node: node, name: key});
   });
 };
+
+SDK.OverlayDispatcher = class {
+  /**
+   * @param {!SDK.DOMModel} domModel
+   */
+  constructor(domModel) {
+    this._domModel = domModel;
+  }
+
+  /**
+   * @override
+   * @param {!Protocol.DOM.NodeId} nodeId
+   */
+  inspectNodeRequested(nodeId) {
+    console.log(nodeId);
+    this._domModel._inspectNodeRequested(nodeId);
+  }
+
+  /**
+   * @override
+   * @param {!Protocol.DOM.NodeId} nodeId
+   */
+  nodeHighlightRequested(nodeId) {
+    console.log(nodeId);
+    this._domModel.nodeHighlightRequested(nodeId);
+  }
+}
 
 Ant.initPage = (node) => {
   node.attributes = [];

@@ -9,13 +9,13 @@ Ant = {};
 
 Ant.TouchModel = class {
     constructor() {
-      this._touchEnabled = false;
-      this._touchMobile = false;
-      this._customTouchEnabled = false;
-  
+      this._touchEnabled = true;
+      this._touchMobile = true;
+      this._customTouchEnabled = true;
+
       SDK.targetManager.observeTargets(this, SDK.Target.Capability.Browser);
     }
-  
+
     /**
      * @return {!Emulation.MultitargetTouchModel}
      */
@@ -24,7 +24,7 @@ Ant.TouchModel = class {
         Ant.TouchModel._instance = new Ant.TouchModel();
       return /** @type {!Emulation.MultitargetTouchModel} */ (Ant.TouchModel._instance);
     }
-  
+
     /**
      * @param {boolean} enabled
      * @param {boolean} mobile
@@ -34,7 +34,7 @@ Ant.TouchModel = class {
       this._touchMobile = mobile;
       this._updateAllTargets();
     }
-  
+
     /**
      * @param {boolean} enabled
      */
@@ -42,12 +42,12 @@ Ant.TouchModel = class {
       this._customTouchEnabled = enabled;
       this._updateAllTargets();
     }
-  
+
     _updateAllTargets() {
       for (var target of SDK.targetManager.targets(SDK.Target.Capability.Browser))
         this._applyToTarget(target);
     }
-  
+
     /**
      * @param {!SDK.Target} target
      */
@@ -55,12 +55,12 @@ Ant.TouchModel = class {
       var current = {enabled: this._touchEnabled, configuration: this._touchMobile ? 'mobile' : 'desktop'};
       if (this._customTouchEnabled)
         current = {enabled: true, configuration: 'mobile'};
-  
+
       var domModel = Ant.TinyModel.fromTarget(target);
       var inspectModeEnabled = domModel ? domModel.inspectModeEnabled() : false;
       if (inspectModeEnabled)
         current = {enabled: false, configuration: 'mobile'};
-  
+
       /**
        * @suppressGlobalPropertiesCheck
        */
@@ -76,24 +76,24 @@ Ant.TouchModel = class {
           }
         }
       };
-  
+
       var symbol = Ant.TouchModel._symbol;
       var previous = target[symbol] || {enabled: false, configuration: 'mobile', scriptId: ''};
-  
+
       if (previous.enabled === current.enabled && (!current.enabled || previous.configuration === current.configuration))
         return;
-  
+
       if (previous.scriptId) {
         target.pageAgent().removeScriptToEvaluateOnLoad(previous.scriptId);
         target[symbol].scriptId = '';
       }
-  
+
       target[symbol] = current;
       target[symbol].scriptId = '';
-  
+
       if (current.enabled)
         target.pageAgent().addScriptToEvaluateOnLoad('(' + injectedFunction.toString() + ')()', scriptAddedCallback);
-  
+
       /**
        * @param {?Protocol.Error} error
        * @param {string} scriptId
@@ -101,10 +101,10 @@ Ant.TouchModel = class {
       function scriptAddedCallback(error, scriptId) {
         (target[symbol] || {}).scriptId = error ? '' : scriptId;
       }
-  
+
       target.emulationAgent().setTouchEmulationEnabled(current.enabled, current.configuration);
     }
-  
+
     /**
      * @param {!Common.Event} event
      */
@@ -112,18 +112,20 @@ Ant.TouchModel = class {
       var domModel = /** @type {!SDK.DOMModel} */ (event.target);
       this._applyToTarget(domModel.target());
     }
-  
+
     /**
      * @override
      * @param {!SDK.Target} target
      */
     targetAdded(target) {
-      var domModel = Ant.TinyModel.fromTarget(target);
-      if (domModel)
-        domModel.addEventListener(SDK.DOMModel.Events.InspectModeWillBeToggled, this._inspectModeToggled, this);
-      this._applyToTarget(target);
+      setTimeout(() => {
+        var domModel = Ant.TinyModel.fromTarget(target);
+        if (domModel)
+          domModel.addEventListener(SDK.DOMModel.Events.InspectModeWillBeToggled, this._inspectModeToggled, this);
+        this._applyToTarget(target);
+      }, 100);
     }
-  
+
     /**
      * @override
      * @param {!SDK.Target} target
@@ -131,12 +133,11 @@ Ant.TouchModel = class {
     targetRemoved(target) {
       var domModel = Ant.TinyModel.fromTarget(target);
       if (domModel)
-        domModel.removeEventListener(SDK.DOMModel.Events.InspectModeWillBeToggled, this._inspectModeToggled, this);            
+        domModel.removeEventListener(SDK.DOMModel.Events.InspectModeWillBeToggled, this._inspectModeToggled, this);
     }
   };
-  
+
 Ant.TouchModel._symbol = Symbol('Ant.TouchModel.symbol');
 
 /** @type {?Emulation.MultitargetTouchModel} */
 Ant.TouchModel._instance = null;
-  

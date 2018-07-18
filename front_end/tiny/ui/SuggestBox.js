@@ -524,7 +524,7 @@ UI.SuggestBox = class {
   itemElement(index) {
     if (!this._elementList[index]) {
       this._elementList[index] =
-          this._createItemElement(this._userEnteredText, this._items[index].title, this._items[index].className);
+          this._createItemElement(this._userEnteredText, this._items[index].text, this._items[index].priority);
     }
     return this._elementList[index];
   }

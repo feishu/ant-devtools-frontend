@@ -3,16 +3,16 @@ Ant.switchTargetMutex = false;
 Ant.makeProxyPromiseOnce = (method, payload, callback) =>
   new Promise((resolve, reject) => {
     window.listenToHostOnce(`render-${method}`, (event, args) => {
-      const { payload, error } = args;      
+      const { payload, error } = args;
       if (error) return reject(error);
       const timeout = setTimeout(function() {
         return reject('timeout');
       }, 2000);
       if (callback && (typeof callback) === 'function') {
-        clearTimeout(timeout);        
+        clearTimeout(timeout);
         resolve(callback(payload));
       } else {
-        clearTimeout(timeout);        
+        clearTimeout(timeout);
         resolve(payload);
       }
     });
@@ -32,7 +32,7 @@ Ant.makePromiseHostOnce = (method, payload, callback) =>
         clearTimeout(timeout);
         resolve(callback(args));
       } else {
-        clearTimeout(timeout);        
+        clearTimeout(timeout);
         resolve(args);
       }
     });

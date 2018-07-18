@@ -37,10 +37,11 @@
         { "name": "layer_viewer", "condition": "!v8only" },
         { "name": "snippets" },
         { "name": "diff" },
-        { "name": "data_grid" },        
+        { "name": "data_grid" },
         { "name": "terminal", "type": "remote" },
         { "name": "sass", "condition": "!v8only" },
         { "name": "accessibility", "condition": "!v8only", "type": "remote" },
+        { "name": "text_utils", "type": "autostart"},
         { "name": "animation", "condition": "!v8only" },
         { "name": "screencast", "condition": "remoteFrontend", "type": "remote" },
         { "name": "emulated_devices", "condition": "!v8only" , "type": "remote" }

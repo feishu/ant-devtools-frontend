@@ -94,6 +94,7 @@
         "CSSRule.js",
         "CSSStyleDeclaration.js",
         "CSSStyleSheetHeader.js",
+        "OverlayModel.js",
         "DOMModel.js",
         "DebuggerModel.js",
         "HAREntry.js",
