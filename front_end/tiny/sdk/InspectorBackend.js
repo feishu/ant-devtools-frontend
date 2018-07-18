@@ -81,7 +81,6 @@ var InspectorBackendClass = class {
      * @this {Protocol.TargetBase}
      */
     function registerDispatcher(dispatcher) {
-      console.log(domain);
       this.registerDispatcher(domain, dispatcher);
     }
 
